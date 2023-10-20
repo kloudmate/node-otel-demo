@@ -1,14 +1,21 @@
 const express = require('express')
-const { loggerProvider } = require('./instrumentation')
-const { SeverityNumber } = require('@opentelemetry/api-logs')
-const { metrics, trace } = require('@opentelemetry/api')
+const { metrics, trace } = require('@opentelemetry/api');
+const { SeverityNumber } = require('@opentelemetry/api-logs');
+const {  loggerProvider } = require('./instrumentation');
 
+const logger = loggerProvider.getLogger('order-service', '1.0.0');
 const app = express()
 const PORT = process.env.PORT || 7000
 
 app.use(express.json())
 
 app.get('/', (req, res) => {
+  logger.emit({
+    severityNumber: SeverityNumber.INFO,
+    severityText: 'info',
+    body: 'this is a log body',
+    attributes: { 'log.type': 'custom', success: true },
+  });
   const tracer = trace.getTracer('tracer')
   const span = tracer.startSpan('order-span')
   const attributes = {}
@@ -25,7 +32,7 @@ app.get('/', (req, res) => {
     })
     orderCounter.add(1, attributes)
     span.setAttributes(attributes)
-    loggerProvider.getLogger().emit({ body: 'This is a log', attributes })
+
     res.status(200).json({ msg: 'success' })
     span.end()
   } catch (error) {
@@ -34,11 +41,11 @@ app.get('/', (req, res) => {
     span.setStatus({
       code: 2,
     })
-    loggerProvider.getLogger().emit({
-      body: errMsg,
-      attributes,
+    logger.emit('Some error', {
       severityNumber: SeverityNumber.ERROR,
-    })
+      severityText: 'error',
+      body: errMsg,
+    });
     res.status(500).json({ msg: 'error' })
   }
 })
