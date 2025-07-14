@@ -1,50 +1,87 @@
-# React + TypeScript + Vite
+# TODO Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 🌐 Instrument Frontend Application
 
-Currently, two official plugins are available:
+### Step 1: Create Frontend Instrumentation
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Create `instrumentation.ts` inside frontend folder with the following configuration:
 
-## Expanding the ESLint configuration
+```typescript
+import { SimpleSpanProcessor, WebTracerProvider } from '@opentelemetry/sdk-trace-web';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
+import { registerInstrumentations } from '@opentelemetry/instrumentation';
+import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web';
+import { ZoneContextManager } from '@opentelemetry/context-zone';
+import { resourceFromAttributes } from '@opentelemetry/resources';
+import { getPropagator } from "@opentelemetry/auto-configuration-propagators"
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
+const provider = new WebTracerProvider({
+  spanProcessors: [new SimpleSpanProcessor(new OTLPTraceExporter({
+    url: 'https://otel.kloudmate.com:4318/v1/traces',
+    headers: {
+      authorization: "YOUR_PUBLIC_KEY"
+    }
+  }))],
+  resource: resourceFromAttributes({
+    'service.name': 'TODO-Frontend',
+    'service.version': '1.0',
+  }),
 })
+
+const propagator = getPropagator()
+provider.register({
+  contextManager: new ZoneContextManager(),
+  propagator
+});
+
+// Auto-instrumentations
+registerInstrumentations({
+  instrumentations: [
+    getWebAutoInstrumentations({
+      '@opentelemetry/instrumentation-user-interaction': {
+        enabled: false
+      },
+      '@opentelemetry/instrumentation-document-load': {
+        enabled: false
+      },
+    }),
+  ],
+  tracerProvider: provider,
+});
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+**Important:** Replace `YOUR_PUBLIC_KEY` with your actual Kloudmate public key.
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+### Step 2: Add this script in index.html inside body tag
+```bash
+<script type="module" src="./instrumentation.ts"></script>
 ```
+
+### Step 3: Install Frontend Dependencies
+
+```bash
+cd frontend
+npm install
+```
+
+### Step 4: Configure Frontend Environment
+
+```bash
+cp .env.example .env
+```
+
+Edit the `.env` file with your frontend-specific configuration.
+
+### Step 5: Start Frontend Development Server
+
+```bash
+npm run dev
+```
+
+## 📦 Required Dependencies
+
+### Frontend Dependencies
+```bash
+npm install @opentelemetry/sdk-trace-web @opentelemetry/exporter-trace-otlp-http @opentelemetry/instrumentation @opentelemetry/auto-instrumentations-web @opentelemetry/context-zone @opentelemetry/resources @opentelemetry/auto-configuration-propagators
+```
+

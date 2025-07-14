@@ -37,6 +37,7 @@ function Home() {
         data.map((item) => {
           dispatch({ type: "ADD_COLUMN", column: { id: item.id, title: item.title, tasks: item.tasks }})
         })
+        console.log(state.columns)
       }
     } catch (error) {
       console.log(error);

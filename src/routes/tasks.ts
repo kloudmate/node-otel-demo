@@ -39,7 +39,7 @@ router.get(
           );
 
           return {
-            id: column.id,
+            id: column._id,
             title: column.title,
             tasks: tasksWithComments,
           };

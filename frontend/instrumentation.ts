@@ -3,14 +3,14 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { registerInstrumentations } from '@opentelemetry/instrumentation';
 import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web';
 import { ZoneContextManager } from '@opentelemetry/context-zone';
-import { DocumentLoadInstrumentation } from '@opentelemetry/instrumentation-document-load';
 import { resourceFromAttributes } from '@opentelemetry/resources';
+import { getPropagator } from "@opentelemetry/auto-configuration-propagators"
 
 const provider = new WebTracerProvider({
   spanProcessors: [new SimpleSpanProcessor(new OTLPTraceExporter({
     url: 'https://otel.kloudmate.com:4318/v1/traces',
     headers: {
-      authorization: "Your_API_KEY"
+      authorization: "YOUR_PUBLIC_KEY"
     }
   }))],
   resource: resourceFromAttributes({
@@ -18,15 +18,24 @@ const provider = new WebTracerProvider({
     'service.version': '1.0',
   }),
 })
+
+const propagator = getPropagator()
 provider.register({
-  contextManager: new ZoneContextManager()
+  contextManager: new ZoneContextManager(),
+  propagator
 });
 
 // Auto-instrumentations
 registerInstrumentations({
   instrumentations: [
-    new DocumentLoadInstrumentation(),
-    getWebAutoInstrumentations(),
+    getWebAutoInstrumentations({
+      '@opentelemetry/instrumentation-user-interaction': {
+        enabled: false
+      },
+      '@opentelemetry/instrumentation-document-load': {
+        enabled: false
+      },
+    }),
   ],
   tracerProvider: provider,
 });
