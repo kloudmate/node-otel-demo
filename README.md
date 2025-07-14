@@ -2,51 +2,12 @@
 
 This project demonstrates how to instrument a Node.js application with OpenTelemetry for collecting traces, metrics, logs and monitoring using Kloudmate.
 
-## 📋 Prerequisites
 
-- Node.js (v18 or higher)
-- npm or yarn
-- Kloudmate account with API keys
-
-## 🛠️ Project Structure
-
-```
-project-root/
-├── src/
-│   └── index.ts
-├── frontend/
-│   ├── instrumentation.ts
-│   └── ...
-├── .env.example
-├── package.json
-└── README.md
-```
-
-## 🚀 Quick Start
-
-### 1. Clone and Install
-
-```bash
-git clone <your-repository>
-cd <project-directory>
-npm install
-```
-
-### 2. Environment Configuration
-
-Copy the example environment file:
-
-```bash
-cp .env.example .env
-```
-
-Fill in your configuration values in the `.env` file.
-
-## 🔧 Backend Setup
+## 🔧 Instrument Backend with Otel
 
 ### Step 1: Configure Environment Variables
 
-Set up the following environment variables. You need to export them in your shell and run the command
+Set up the following environment variables. You need to export them in your shell
 
 ```bash
 export OTEL_TRACES_EXPORTER="otlp"
@@ -57,88 +18,38 @@ export OTEL_NODE_RESOURCE_DETECTORS="env,host,os"
 export OTEL_NODE_ENABLED_INSTRUMENTATIONS="http,express"
 export OTEL_SERVICE_NAME="your-service-name"
 export NODE_OPTIONS="--require @opentelemetry/auto-instrumentations-node/register"
-npx nodemon src/index.ts
 ```
 
-**Important:** Replace `YOUR_PRIVATE_KEY` with your actual Kloudmate private key.
+**Important:** Replace `YOUR_PRIVATE_KEY` with your actual Kloudmate private key and set your-service-name accordingly.
 
-### Step 3: Start the Backend
+### Step 2: Start the Backend
+
+Start your Node.js app as usual (e.g., node src/index.js or npx nodemon src/index.ts). No code changes required if you use the above NODE_OPTIONS this will automatically instruments the backend.
+
+## 🌐 Instrument Frontend with Otel
+
+### Step 1: 📦 Add Required Dependencies
 
 ```bash
-npx nodemon src/index.ts
+npm install @opentelemetry/sdk-trace-web @opentelemetry/exporter-trace-otlp-http @opentelemetry/instrumentation @opentelemetry/auto-instrumentations-web @opentelemetry/context-zone @opentelemetry/resources @opentelemetry/auto-configuration-propagators
 ```
 
-## 🌐 Frontend Setup
+### Step 2: Create instrumentation.js
 
-### Step 1: Create Frontend Instrumentation
-
-Create `instrumentation.ts` inside frontend folder with the following configuration:
-
-```typescript
-import { SimpleSpanProcessor, WebTracerProvider } from '@opentelemetry/sdk-trace-web';
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
-import { registerInstrumentations } from '@opentelemetry/instrumentation';
-import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web';
-import { ZoneContextManager } from '@opentelemetry/context-zone';
-import { resourceFromAttributes } from '@opentelemetry/resources';
-import { getPropagator } from "@opentelemetry/auto-configuration-propagators"
-
-const provider = new WebTracerProvider({
-  spanProcessors: [new SimpleSpanProcessor(new OTLPTraceExporter({
-    url: 'https://otel.kloudmate.com:4318/v1/traces',
-    headers: {
-      authorization: "YOUR_PUBLIC_KEY"
-    }
-  }))],
-  resource: resourceFromAttributes({
-    'service.name': 'TODO-Frontend',
-    'service.version': '1.0',
-  }),
-})
-
-const propagator = getPropagator()
-provider.register({
-  contextManager: new ZoneContextManager(),
-  propagator
-});
-
-// Auto-instrumentations
-registerInstrumentations({
-  instrumentations: [
-    getWebAutoInstrumentations({
-      '@opentelemetry/instrumentation-user-interaction': {
-        enabled: false
-      },
-      '@opentelemetry/instrumentation-document-load': {
-        enabled: false
-      },
-    }),
-  ],
-  tracerProvider: provider,
-});
-```
+Create `instrumentation.js` inside the root of React application with the following configuration [instrumentation.js](./frontend/instrumentation.js)
 
 **Important:** Replace `YOUR_PUBLIC_KEY` with your actual Kloudmate public key.
 
 ### Step 2: Add this script in index.html inside body tag
 ```bash
-<script type="module" src="./instrumentation.ts"></script>
+<script type="module" src="./instrumentation.js"></script>
 ```
 
-### Step 3: Install Frontend Dependencies
+### Step 4: Configure Environment Variable in .env
 
 ```bash
-cd frontend
-npm install
+OTEL_PROPAGATORS=tracecontext,baggage
 ```
-
-### Step 4: Configure Frontend Environment
-
-```bash
-cp .env.example .env
-```
-
-Edit the `.env` file with your frontend-specific configuration.
 
 ### Step 5: Start Frontend Development Server
 
@@ -146,48 +57,23 @@ Edit the `.env` file with your frontend-specific configuration.
 npm run dev
 ```
 
-## 📦 Required Dependencies
-
-### Frontend Dependencies
-```bash
-npm install @opentelemetry/sdk-trace-web @opentelemetry/exporter-trace-otlp-http @opentelemetry/instrumentation @opentelemetry/auto-instrumentations-web @opentelemetry/context-zone @opentelemetry/resources @opentelemetry/auto-configuration-propagators
-```
-
 ## ⚙️ Configuration Options
 
 ### Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `OTEL_TRACES_EXPORTER` | Trace exporter type | Yes |
-| `OTEL_METRICS_EXPORTER` | Metrics exporter type | Yes |
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | Kloudmate OTLP endpoint | Yes |
-| `OTEL_EXPORTER_OTLP_HEADERS` | Authorization header with private key | Yes |
-| `OTEL_NODE_RESOURCE_DETECTORS` | Resource detectors to enable | Yes |
-| `OTEL_NODE_ENABLED_INSTRUMENTATIONS` | Instrumentations to enable | Yes |
+| Variable | Description |
+|----------|-------------|
+| `OTEL_TRACES_EXPORTER` | Trace exporter type |
+| `OTEL_METRICS_EXPORTER` | Metrics exporter type |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | Kloudmate OTLP endpoint |
+| `OTEL_EXPORTER_OTLP_HEADERS` | Authorization header with private key |
+| `OTEL_NODE_RESOURCE_DETECTORS` | Resource detectors to enable |
+| `OTEL_NODE_ENABLED_INSTRUMENTATIONS` | Instrumentations to enable |
 | `OTEL_SERVICE_NAME` | Your service name | Yes |
-| `NODE_OPTIONS` | Node.js options for auto-instrumentation | Yes |
-
-### Service Configuration
-
-Update the service names in your instrumentation files:
-- Backend: Update `OTEL_SERVICE_NAME` environment variable
-- Frontend: Update `service.name` in the resource attributes
-
-## 🔍 Troubleshooting
-
-### Common Issues
-
-1. **Missing API Keys**: Ensure you've replaced `YOUR_PRIVATE_KEY` and `YOUR_PUBLIC_KEY` with actual values from Kloudmate.
-
-2. **Environment Variables Not Set**: Make sure all required environment variables are exported before running the application.
-
-3. **Dependencies Not Installed**: Run `npm install` in both root and frontend directories.
-
-4. **Port Conflicts**: Check if the default ports are available or configure different ports in your environment files.
+| `NODE_OPTIONS` | Node.js options for auto-instrumentation |
 
 ## ScreenShots
-You can see traces like this in our platform
+You can see traces and logs like this in our platform
 
 ### Traces
 ![alt text](./public/traces.png)
