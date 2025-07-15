@@ -10,7 +10,7 @@ const provider = new WebTracerProvider({
   spanProcessors: [new SimpleSpanProcessor(new OTLPTraceExporter({
     url: 'https://otel.kloudmate.com:4318/v1/traces',
     headers: {
-      authorization: "sk_Zt1rsTxryhipgPMkB2SCldrF"
+      authorization: "YOUR_PUBLIC_KEY"
     }
   }))],
   resource: resourceFromAttributes({
