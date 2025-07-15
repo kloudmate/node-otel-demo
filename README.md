@@ -2,7 +2,6 @@
 
 This project demonstrates how to instrument a Node.js application with OpenTelemetry for collecting traces, metrics, logs and monitoring using Kloudmate.
 
-
 ## 🔧 Instrument Backend with Otel
 
 ### Step 1: Configure Environment Variables
@@ -31,30 +30,19 @@ Start your Node.js app as usual (e.g., node src/index.js or npx nodemon src/inde
 ### Step 1: 📦 Add Required Dependencies
 
 ```bash
-npm install @opentelemetry/sdk-trace-web @opentelemetry/exporter-trace-otlp-http @opentelemetry/instrumentation @opentelemetry/auto-instrumentations-web @opentelemetry/context-zone @opentelemetry/resources @opentelemetry/auto-configuration-propagators
+npm install @opentelemetry/api @opentelemetry/sdk-trace-web @opentelemetry/exporter-trace-otlp-http @opentelemetry/instrumentation @opentelemetry/auto-instrumentations-web @opentelemetry/context-zone @opentelemetry/resources @opentelemetry/auto-configuration-propagators
 ```
 
 ### Step 2: Create instrumentation.js
 
-Create `instrumentation.js` inside the root of React application with the following configuration [instrumentation.js](./frontend/instrumentation.js)
+Create `instrumentation.ts` inside the src folder of React application with the following configuration [instrumentation.ts](./frontend/src/instrumentation.ts)
 
 **Important:** Replace `YOUR_PUBLIC_KEY` with your actual Kloudmate public key.
+**Important:** Enter your Backend Url in the form of regex in place ```propagateTraceHeaderCorsUrls``` to both fetch and XMLHttpRequest configuration
 
-### Step 2: Add this script in index.html inside body tag
-```bash
-<script type="module" src="./instrumentation.js"></script>
-```
-
-### Step 4: Configure Environment Variable in .env
-
-```bash
-OTEL_PROPAGATORS=tracecontext,baggage
-```
-
-### Step 5: Start Frontend Development Server
-
-```bash
-npm run dev
+### Step 3: Import instrumentaion.ts in the main.tsx file
+```typescript
+import './instrumentation.ts'
 ```
 
 ## ⚙️ Configuration Options

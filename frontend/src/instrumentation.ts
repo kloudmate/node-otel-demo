@@ -4,13 +4,13 @@ import { registerInstrumentations } from '@opentelemetry/instrumentation';
 import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web';
 import { ZoneContextManager } from '@opentelemetry/context-zone';
 import { resourceFromAttributes } from '@opentelemetry/resources';
-import { getPropagator } from "@opentelemetry/auto-configuration-propagators"
-
+import { W3CTraceContextPropagator } from "@opentelemetry/core";
+import api from "@opentelemetry/api";
 const provider = new WebTracerProvider({
   spanProcessors: [new SimpleSpanProcessor(new OTLPTraceExporter({
     url: 'https://otel.kloudmate.com:4318/v1/traces',
     headers: {
-      authorization: "YOUR_PUBLIC_KEY"
+      authorization: "sk_Zt1rsTxryhipgPMkB2SCldrF"
     }
   }))],
   resource: resourceFromAttributes({
@@ -18,17 +18,21 @@ const provider = new WebTracerProvider({
     'service.version': '1.0',
   }),
 })
-
-const propagator = getPropagator()
+api.propagation.setGlobalPropagator(new W3CTraceContextPropagator());
 provider.register({
   contextManager: new ZoneContextManager(),
-  propagator
 });
 
 // Auto-instrumentations
 registerInstrumentations({
   instrumentations: [
     getWebAutoInstrumentations({
+      '@opentelemetry/instrumentation-fetch': {
+        propagateTraceHeaderCorsUrls: [/^http:\/\/localhost:3000\/.*$/],
+      },
+      '@opentelemetry/instrumentation-xml-http-request': {
+        propagateTraceHeaderCorsUrls: [/^http:\/\/localhost:3000\/.*$/],
+      },
       '@opentelemetry/instrumentation-user-interaction': {
         enabled: false
       },

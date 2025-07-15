@@ -22,5 +22,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src", "instrumentation.js"]
+  "include": ["src", "src/instrumentation.ts"]
 }
