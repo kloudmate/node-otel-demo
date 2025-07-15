@@ -30,7 +30,7 @@ Start your Node.js app as usual (e.g., node src/index.js or npx nodemon src/inde
 ### Step 1: 📦 Add Required Dependencies
 
 ```bash
-npm install @opentelemetry/api @opentelemetry/sdk-trace-web @opentelemetry/exporter-trace-otlp-http @opentelemetry/instrumentation @opentelemetry/auto-instrumentations-web @opentelemetry/context-zone @opentelemetry/resources @opentelemetry/auto-configuration-propagators
+npm install @opentelemetry/api @opentelemetry/core @opentelemetry/sdk-trace-web @opentelemetry/exporter-trace-otlp-http @opentelemetry/instrumentation @opentelemetry/auto-instrumentations-web @opentelemetry/context-zone @opentelemetry/resources @opentelemetry/auto-configuration-propagators
 ```
 
 ### Step 2: Create instrumentation.js
