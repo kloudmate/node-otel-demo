@@ -45,6 +45,11 @@ Create `instrumentation.ts` inside the src folder of React application with the 
 import './instrumentation.ts'
 ```
 
+## Enable Logging
+To enable logs you have to use any logging framework like winston, pino, etc.
+
+**For Example:** You can refer [logger.ts](./src/logger.ts) file for winston configuration.
+
 ## ⚙️ Configuration Options
 
 ### Environment Variables
