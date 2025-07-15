@@ -14,7 +14,7 @@ export OTEL_METRICS_EXPORTER="otlp"
 export OTEL_EXPORTER_OTLP_ENDPOINT="https://otel.kloudmate.com:4318"
 export OTEL_EXPORTER_OTLP_HEADERS="authorization=YOUR_PRIVATE_KEY"
 export OTEL_NODE_RESOURCE_DETECTORS="env,host,os"
-export OTEL_NODE_ENABLED_INSTRUMENTATIONS="http,express"
+export OTEL_NODE_DISABLED_INSTRUMENTATIONS="fs,dns,net"
 export OTEL_SERVICE_NAME="your-service-name"
 export NODE_OPTIONS="--require @opentelemetry/auto-instrumentations-node/register"
 ```
