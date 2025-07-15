@@ -56,7 +56,7 @@ import './instrumentation.ts'
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | Kloudmate OTLP endpoint |
 | `OTEL_EXPORTER_OTLP_HEADERS` | Authorization header with private key |
 | `OTEL_NODE_RESOURCE_DETECTORS` | Resource detectors to enable |
-| `OTEL_NODE_ENABLED_INSTRUMENTATIONS` | Instrumentations to enable |
+| `OTEL_NODE_DISABLED_INSTRUMENTATIONS` | Instrumentations to disable |
 | `OTEL_SERVICE_NAME` | Your service name | Yes |
 | `NODE_OPTIONS` | Node.js options for auto-instrumentation |
 
