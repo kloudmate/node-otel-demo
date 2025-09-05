@@ -6,6 +6,13 @@ This project demonstrates how to instrument a Node.js application with OpenTelem
 
 ### Step 1: Configure Environment Variables
 
+
+Install following modules
+```
+npm install --save @opentelemetry/api
+npm install --save @opentelemetry/auto-instrumentations-node
+```
+
 Set up the following environment variables. You need to export them in your shell
 
 ```bash
